@@ -1,26 +1,29 @@
 import nltk
 import re
 
-from numpy import linspace
-from matplotlib.colors import rgb2hex # , ListedColormap, LinearSegmentedColormap
-# from matplotlib.cm import autumn_r
+from matplotlib.colors import rgb2hex
 import matplotlib.pyplot as plt
 from collections import Counter
 
 nltk.download('stopwords')
 nltk.download('punkt')
 
-class TextPiece():
+
+class TextPiece:
     
     def __init__(self, text: str, additional_stopwords: list=[]):
         stopwords = nltk.corpus.stopwords.words('portuguese')
         stopwords += additional_stopwords
+        paragraphs = text.split("\n")
         # split the text by words        
-        self.tokens = nltk.word_tokenize(text)
+        self.paragraph_tokens = [nltk.word_tokenize(i) for i in paragraphs]
         # remove punctuation
         pattern = re.compile('.*[A-Za-z].*')
-        self.words = [w.lower() for w in self.tokens if pattern.match(w) and w not in stopwords]
-        self.counter = Counter(self.words)
+        words = []
+        for tokens in self.paragraph_tokens:
+            w = [t.lower() for t in tokens if pattern.match(t) and t not in stopwords]
+            words += w
+        self.counter = Counter(words)
         
     def common_words(self, k:int = 10):
         return self.counter.most_common(k)
@@ -32,13 +35,16 @@ class TextPiece():
         # cmap = ListedColormap(cmap[3:,:-1])
         cmap = plt.get_cmap('autumn_r')
         html_tokens = []
-        for t in self.tokens:
-            # for each token, set a color if it appears more than frequency_threshold in the text
-            if t.lower() in self.counter and self.counter[t.lower()] > frequency_threshold:
-                relative_count = self.counter[t.lower()] / max_counter
-                color = rgb2hex(cmap(relative_count))
-                html_tokens.append(f'<font size=4 color={color}>{t}</font>')
-            else:
-                html_tokens.append(t)
+        for paragraph in self.paragraph_tokens:
+            html_tokens.append('<p>')
+            for t in paragraph:
+                # for each token, set a color if it appears more than frequency_threshold in the text
+                if t.lower() in self.counter and self.counter[t.lower()] > frequency_threshold:
+                    relative_count = self.counter[t.lower()] / max_counter
+                    color = rgb2hex(cmap(relative_count))
+                    html_tokens.append(f'<font size=4 color={color}>{t}</font>')
+                else:
+                    html_tokens.append(t)
+            html_tokens.append('</p>')
         html_string = ' '.join(html_tokens)
         return html_string

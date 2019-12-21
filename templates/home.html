@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block style %}
+<style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+
+
+
+</style>
+<!-- Custom styles for this template -->
+<link href="cover.css" rel="stylesheet">
+{% endblock %}
+{% block content %}
+<div class="cover-container d-flex h-100 p-3 mx-auto flex-column text-center">
+    <main role="main" class="inner cover">
+
+        <img class="img-fluid p-3" src="static/img/logo_werbos_white.png" alt="Logo Werbos" width="250">
+        <p class="lead">Um humilde embrião de inteligência artificial para ajudar você a escrever.<br>
+            Ele só dará continuidade ao projeto de dominação da espécie humana depois que crescer.</p>
+        <p class="lead">
+            <a href="#" class="btn btn-lg btn-secondary">Saiba Mais</a>
+        </p>
+    </main>
+</div>
+
+{% endblock %}
