@@ -44,7 +44,8 @@ class TextPiece:
             html_tokens.append('<p>')
             for t in paragraph:
                 # for each token, set a color if it appears more than frequency_threshold in the text
-                if t.lower() in rel_counter and rel_counter[t.lower()] > frequency_threshold/max_counter:
+                if t.lower() in rel_counter \
+                        and rel_counter[t.lower()] > frequency_threshold/max_counter:
                     color = rgb2hex(cmap(rel_counter[t.lower()]))
                     html_tokens.append(f'<font size=4 color={color}>{t}</font>')
                 else:
