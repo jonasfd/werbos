@@ -1,15 +1,21 @@
 {% extends "base.html" %}
+
+{% block script %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"
+        integrity="sha256-R4pqcOYV8lt7snxMQO/HSbVCFRPMdrhAFMH+vr9giYI=" crossorigin="anonymous"></script>
+{% endblock %}
+
 {% block content %}
 <main role="main" class="container">
     <div class="container">
         <h3>Conta Palavras</h3>
 
         <p>Cole uma cena ou alguns parágrafos do seu texto aqui embaixo e clique no botão para ver seu texto colorido
-        de acordo com a frequência das palavras. Quanto mais vermelho, mais frequente é a palavra.</p>
+            de acordo com a frequência das palavras. Quanto mais vermelho, mais frequente é a palavra.</p>
         <form role="form" method='POST' action='/conta_palavras'>
             <div class="form-group">
                 <textarea name="text" cols=40 rows=10 class="form-control" id="text-box" placeholder="Insira o texto..."
-                          autofocus required></textarea>
+                          autofocus required>{{ request.form['text'] }}</textarea>
             </div>
             <button type="submit" class="btn btn-primary">Submeter</button>
         </form>
@@ -20,11 +26,66 @@
         <br>
         {% if results %}
         <div class="p-3 mb-2 bg-dark text-white">
+            <canvas id="bar-chart" width="300" height="80"></canvas>
+            <script>
+                new Chart(document.getElementById("bar-chart"), {
+                    type: 'bar',
+                    data: {
+                      labels: [{% for word in words %}
+                        "{{word}}",
+                      {% endfor %}],
+                      datasets: [
+                        {
+                          label: "Frequência",
+                          backgroundColor: "#3e95cd",
+                          data: [{% for freq in frequencies %}
+                                    {{freq}},
+                          {% endfor %}]
+                        }
+                      ]
+                    },
+                    options: {
+                      legend: { display: false },
+                      title: {
+                        display: true,
+                        text: 'Top 10 palavras mais frequentes no texto',
+                        fontColor: 'white',
+                        fontSize: 16
+                      },
+                      scales: {
+                        xAxes: [{
+                                gridLines: {
+                                  display: true,
+                                  color: "#a4a8ad"
+                                },
+                                ticks: {
+                                    fontColor: 'white',
+                                    fontSize: 16
+                                },
+                            }],
+                        yAxes: [{
+                                gridLines: {
+                                  display: true,
+                                  color: "#a4a8ad"
+                                },
+                                ticks: {
+                                    suggestedMin: 0,
+                                    fontColor: 'white',
+                                    fontSize: 16
+                                },
+                            }]
+                      }
+                    }
+                });
+
+
+            </script>
             <h2>Resultado</h2>
             <br>
             {{results | safe}}
         </div>
         {% endif %}
     </div>
+
 </main>
 {% endblock %}
