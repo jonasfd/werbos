@@ -8,15 +8,40 @@
 {% block content %}
 <main role="main" class="container">
     <div class="container">
+
         <h3>Conta Palavras</h3>
 
         <p>Cole uma cena ou alguns parágrafos do seu texto aqui embaixo e clique no botão para ver seu texto colorido
-            de acordo com a frequência das palavras. Quanto mais vermelho, mais frequente é a palavra.</p>
+            de acordo com a frequência das palavras. Quanto mais vermelho, mais frequente é a palavra. A ferramenta
+            já desconsidera um conjunto de palavra vazias <i>(stopwords)</i>, mas você pode acrescentar outras palavras
+            clicando em <b>opções.</b></p>
+
         <form role="form" method='POST' action='/conta_palavras'>
+            <!-- TEXT AREA -->
             <div class="form-group">
                 <textarea name="text" cols=40 rows=10 class="form-control" id="text-box" placeholder="Insira o texto..."
                           autofocus required>{{ request.form['text'] }}</textarea>
             </div>
+
+            <!-- COLLAPSIBLE OPTIONS -->
+            <div class="panel-group pb-3">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" href="#collapse1">Opções</a>
+                        </h4>
+                    </div>
+                    <div id="collapse1" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            <p>Palavras adicionais para descartar (separadas por VÍRGULAS):</p>
+                            <input type="text" name="stopwords" class="form-control" id="stopwords"
+                                   value="{{ request.form['stopwords'] }}"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BUTTON AREA -->
             <button type="submit" class="btn btn-primary">Submeter</button>
         </form>
         <br>
@@ -26,57 +51,127 @@
         <br>
         {% if results %}
         <div class="p-3 mb-2 bg-dark text-white">
-            <canvas id="bar-chart" width="300" height="80"></canvas>
+            <div class="container">
+                <div class="row">
+                    <div class="col">
+                        <canvas id="bar-chart" width="100" height="80"></canvas>
+                    </div>
+                    <div class="col">
+                        <canvas id="line-chart" width="100" height="80"></canvas>
+                    </div>
+                </div>
+            </div>
+
             <script>
                 new Chart(document.getElementById("bar-chart"), {
                     type: 'bar',
                     data: {
-                      labels: [{% for word in words %}
-                        "{{word}}",
-                      {% endfor %}],
-                      datasets: [
-                        {
-                          label: "Frequência",
-                          backgroundColor: "#3e95cd",
-                          data: [{% for freq in frequencies %}
-                                    {{freq}},
-                          {% endfor %}]
-                        }
-                      ]
+                        labels: [{% for word in words %}
+                                "{{word}}",
+                                {% endfor %}],
+                        datasets: [
+                            {
+                              label: "Frequência",
+                              backgroundColor: "#3e95cd",
+                              data: [{% for freq in frequencies %}
+                                        {{freq}},
+                              {% endfor %}]
+                            }
+                        ]
                     },
                     options: {
-                      legend: { display: false },
-                      title: {
-                        display: true,
-                        text: 'Top 10 palavras mais frequentes no texto',
-                        fontColor: 'white',
-                        fontSize: 16
-                      },
-                      scales: {
-                        xAxes: [{
-                                gridLines: {
-                                  display: true,
-                                  color: "#a4a8ad"
-                                },
-                                ticks: {
-                                    fontColor: 'white',
-                                    fontSize: 16
-                                },
-                            }],
-                        yAxes: [{
-                                gridLines: {
-                                  display: true,
-                                  color: "#a4a8ad"
-                                },
-                                ticks: {
-                                    suggestedMin: 0,
-                                    fontColor: 'white',
-                                    fontSize: 16
-                                },
-                            }]
-                      }
+                        legend: { display: false },
+                        title: {
+                            display: true,
+                            text: 'Top 10 palavras mais frequentes no texto',
+                            fontColor: 'white',
+                            fontSize: 16
+                        },
+                          scales: {
+                            xAxes: [{
+                                    gridLines: {
+                                      display: true,
+                                      color: "#a4a8ad"
+                                    },
+                                    ticks: {
+                                        fontColor: 'white',
+                                        fontSize: 16
+                                    },
+                                }],
+                            yAxes: [{
+                                    gridLines: {
+                                      display: true,
+                                      color: "#a4a8ad"
+                                    },
+                                    ticks: {
+                                        suggestedMin: 0,
+                                        fontColor: 'white',
+                                        fontSize: 16
+                                    },
+                                }]
+                          }
                     }
                 });
+
+
+                new Chart(document.getElementById("line-chart"), {
+                  type: 'line',
+                  data: {
+                    labels: [{% for i in range(quality|length) %}
+                                        {{i}},
+                              {% endfor %}],
+                    datasets: [{
+                        data: [{% for q in quality %}
+                                        {{q}},
+                              {% endfor %}],
+                        label: "Originalidade",
+                        borderColor: "#3e95cd",
+                        fill: false
+                      }, 
+                    ]
+                  },
+                  options: {
+                    title: {
+                      display: true,
+                      text: 'Originalidade (de 0 a 10) dos parágrafos no texto',
+                      fontColor: 'white',
+                      fontSize: 16
+                    },
+                    legend: {
+                        display: false
+                    },
+                          scales: {
+                            xAxes: [{
+                                    gridLines: {
+                                      display: true,
+                                      color: "#a4a8ad"
+                                    },
+                                    ticks: {
+                                        fontColor: 'white',
+                                        fontSize: 16
+                                    },
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: 'Parágrafo',
+                                        fontColor: 'white',
+                                        fontSize: 16
+                                    }
+                                }],
+                            yAxes: [{
+                                    gridLines: {
+                                      display: true,
+                                      color: "#a4a8ad"
+                                    },
+                                    ticks: {
+                                        fontColor: 'white',
+                                        fontSize: 16
+                                    },
+
+                                }]
+                          }
+                  }
+                });
+
 
 
             </script>
